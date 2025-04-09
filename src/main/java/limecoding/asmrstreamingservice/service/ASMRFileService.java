@@ -32,6 +32,10 @@ public class ASMRFileService {
 
     public Long uploadASMRFile(MultipartFile file) throws IOException {
 
+        if (file == null) {
+            throw new NullPointerException("MultipartFile은 null일 될 수 없습니다.");
+        }
+
         String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
         Path filepath = uploadDir.resolve(filename);
 
