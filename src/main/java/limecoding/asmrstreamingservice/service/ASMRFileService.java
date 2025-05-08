@@ -4,7 +4,9 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import limecoding.asmrstreamingservice.entity.ASMRFile;
 import limecoding.asmrstreamingservice.repository.ASMRFileRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,17 +21,32 @@ import java.util.UUID;
 public class ASMRFileService {
 
     private final ASMRFileRepository asmrFileRepository;
+    private final Path uploadDir;
 
-    Path uploadDir = Path.of("uploads");
-
-    public ASMRFileService(ASMRFileRepository asmrFileRepository) throws IOException {
+    public ASMRFileService(ASMRFileRepository asmrFileRepository,
+                           @Value("${upload.dir}") String uploadPath) throws IOException {
         this.asmrFileRepository = asmrFileRepository;
+        this.uploadDir = Path.of(uploadPath);
 
         if (!Files.exists(uploadDir)) {
             Files.createDirectory(uploadDir);
+            log.info("upload directory created at {}", uploadDir.toAbsolutePath());
+        } else {
+            log.info("upload directory already exists at {}", uploadDir.toAbsolutePath());
         }
     }
 
+    /**
+     * Uploads an ASMR audio file to the server and saves its metadata to the database.
+     * <p>
+     * The uploaded file is stored in the local file system under a unique filename,
+     * and its path and name are saved as an {@link ASMRFile} entity.
+     *
+     * @param file the {@link MultipartFile} to upload (must not be {@code null})
+     * @return the ID of the saved {@link ASMRFile} entity
+     * @throws NullPointerException if the input file is {@code null}
+     * @throws IOException          if an I/O error occurs while copying the file
+     */
     public Long uploadASMRFile(MultipartFile file) throws IOException {
 
         if (file == null) {

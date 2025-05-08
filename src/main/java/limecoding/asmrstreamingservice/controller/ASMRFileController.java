@@ -27,7 +27,6 @@ import java.util.Map;
 @RequestMapping("/api/v1/file")
 public class ASMRFileController {
 
-    private final PostService postService;
     private final ASMRFileService asmrFileService;
 
     @PostMapping(value = "/upload", consumes = {"multipart/form-data"})
@@ -101,6 +100,9 @@ public class ASMRFileController {
                 outputStream.write(buffer, 0, bytesRead);
                 bytesRemaining -= bytesRead;
             }
+        } catch (Exception e) {
+            log.error("오디오 스트림 중 예외 발생 : {}", e.getMessage());
+            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         }
     }
 }

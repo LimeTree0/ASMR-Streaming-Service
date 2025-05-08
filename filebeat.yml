@@ -1,0 +1,18 @@
+filebeat.inputs:
+  - type: log
+    paths:
+      - /usr/share/filebeat/logs/*.log
+    encoding: utf-8
+    fields:
+      log_type: springboot
+    multiline.pattern: '^\d{4}-\d{2}-\d{2}'
+    multiline.negate: true
+    multiline.match: after
+
+output.elasticsearch:
+  hosts: ["http://elasticsearch:9200"]
+  index: "spring-logs-%{+yyyy.MM.dd}"
+
+setup.ilm.enabled: false
+setup.template.name: "spring-logs"
+setup.template.pattern: "spring-logs-*"

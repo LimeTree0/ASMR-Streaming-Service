@@ -3,9 +3,9 @@ package limecoding.asmrstreamingservice.controller;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import limecoding.asmrstreamingservice.common.response.ApiResponse;
-import limecoding.asmrstreamingservice.config.JwtProvider;
 import limecoding.asmrstreamingservice.dto.auth.LoginRequestDTO;
-import limecoding.asmrstreamingservice.service.RefreshTokenService;
+import limecoding.asmrstreamingservice.service.TokenService;
+import limecoding.asmrstreamingservice.service.alert.AlertService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,9 +26,9 @@ import java.util.Map;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
-    private final JwtProvider jwtProvider;
     private final AuthenticationManager authenticationManager;
-    private final RefreshTokenService refreshTokenService;
+    private final TokenService tokenService;
+    private final AlertService alertService;
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<?>> login(
@@ -51,10 +51,10 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(dto.getUserId(), dto.getPassword())
         );
 
-        String accessToken = jwtProvider.createAccessToken(auth.getName());
-        String refreshToken = jwtProvider.createRefreshToken(auth.getName());
+        String accessToken = tokenService.generateAccessToken(auth.getName());
+        String refreshToken = tokenService.generateRefreshToken(auth.getName());
 
-        refreshTokenService.saveRefreshToken(auth.getName(), refreshToken);
+        tokenService.saveRefreshToken(auth.getName(), refreshToken);
 
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
@@ -76,6 +76,8 @@ public class AuthController {
         response.addHeader("Set-Cookie", accessCookie.toString());
 
         log.info("login user: {}", auth.getName());
+        alertService.sendAlert(auth.getName() + "유저가 로그인을 하였습니다.");
+
 
         return ResponseEntity.ok(ApiResponse.success(Map.of("token", accessToken)));
     }
@@ -88,19 +90,19 @@ public class AuthController {
         log.info("Refresh token: {}", refreshToken);
 
 
-        if (refreshToken == null || !jwtProvider.validateToken(refreshToken)) {
+        if (refreshToken == null || !tokenService.validateToken(refreshToken)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(ApiResponse.error(HttpStatus.UNAUTHORIZED, "토큰이 유효하지 않습니다", null));
         }
 
-        String userId = jwtProvider.getUserId(refreshToken);
+        String userId = tokenService.getUserId(refreshToken);
 
-        if (!refreshTokenService.isValid(userId, refreshToken)) {
+        if (tokenService.isInvalid(userId, refreshToken)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(ApiResponse.error(HttpStatus.UNAUTHORIZED, "토큰이 유효하지 않습니다", null));
         }
 
-        refreshTokenService.deleteRefreshToken(userId);
+        tokenService.deleteRefreshToken(userId);
 
         ResponseCookie expiredCookie = ResponseCookie.from("refreshToken", "")
                 .httpOnly(true)
@@ -121,22 +123,22 @@ public class AuthController {
             @CookieValue(name = "refreshToken", required = false) String refreshToken,
             HttpServletResponse response) {
 
-        if (refreshToken == null || !jwtProvider.validateToken(refreshToken)) {
+        if (refreshToken == null || !tokenService.validateToken(refreshToken)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(ApiResponse.error(HttpStatus.UNAUTHORIZED, "토큰이 유효하지 않습니다", null));
         }
 
-        String userId = jwtProvider.getUserId(refreshToken);
+        String userId = tokenService.getUserId(refreshToken);
 
-        if (!refreshTokenService.isValid(userId, refreshToken)) {
+        if (tokenService.isInvalid(userId, refreshToken)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(ApiResponse.error(HttpStatus.UNAUTHORIZED, "토큰이 유효하지 않습니다", null));
         }
 
-        String newAccessToken = jwtProvider.createAccessToken(userId);
-        String newRefreshToken = jwtProvider.createRefreshToken(userId);
+        String newAccessToken = tokenService.generateAccessToken(userId);
+        String newRefreshToken = tokenService.generateRefreshToken(userId);
 
-        refreshTokenService.saveRefreshToken(userId, newRefreshToken);
+        tokenService.saveRefreshToken(userId, newRefreshToken);
 
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)

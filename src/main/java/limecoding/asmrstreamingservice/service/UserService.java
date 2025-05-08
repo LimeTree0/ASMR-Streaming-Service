@@ -26,7 +26,7 @@ public class UserService {
 
     // 유저 아이디로 유저 검색
     @Transactional(readOnly = true)
-    public UserDto getUserByUserId(String userId) {
+    public UserDto findUserByUserId(String userId) {
         User user = findUserEntityByUserId(userId);
 
         return UserDto.from(user);

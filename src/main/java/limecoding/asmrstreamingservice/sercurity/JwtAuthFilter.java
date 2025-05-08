@@ -1,10 +1,11 @@
-package limecoding.asmrstreamingservice.config;
+package limecoding.asmrstreamingservice.sercurity;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import limecoding.asmrstreamingservice.config.JwtProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,7 +26,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             "/api/v1/auth/logout",
             "/api/v1/auth/refresh",
             "/api/v1/user/me",
-            "/api/v1/post");
+            "/api/v1/post",
+            "/api/v1/subscribe",
+            "/api/v1/subscribe"
+            );
 
     public JwtAuthFilter(JwtProvider jwtProvider, UserDetailsService userDetailsService) {
         this.jwtProvider = jwtProvider;
@@ -66,9 +70,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private boolean checkUrl(String url) {
-
-        log.info("check url : {}", url);
-
         return excludedPaths.stream().anyMatch(url::contains);
     }
 }

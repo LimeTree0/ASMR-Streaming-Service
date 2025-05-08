@@ -27,6 +27,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserService userService;
     private final ASMRFileService asmrFileService;
+    private final NotificationService notificationService;
 
     /**
      * 게시글을 추가한다.
@@ -35,6 +36,7 @@ public class PostService {
      */
     public void createPost(String userId, PostRequestDTO postRequestDTO) {
 
+        log.info("createPost userId: {}", userId);
         log.info("createPost : {}", postRequestDTO.toString());
 
         User user = userService.findUserEntityByUserId(userId);
@@ -48,6 +50,9 @@ public class PostService {
                 .build();
 
         postRepository.save(post);
+
+        String content = user.getUserId() + "님이 새로운 영상을 올렸습니다: " + postRequestDTO.getTitle();
+        notificationService.notifyAll(userId, content);
     }
 
     /**
@@ -57,7 +62,7 @@ public class PostService {
      */
     public void updatePost(String userId, PostUpdateRequestDTO postRequestDTO) {
 
-        UserDto userDto = userService.getUserByUserId(userId);
+        UserDto userDto = userService.findUserByUserId(userId);
 
         // 게시글이 존재하는지 확인
         Post post = postRepository.findById(postRequestDTO.getId()).orElseThrow(
@@ -78,7 +83,7 @@ public class PostService {
      */
     public void deletePost(String userId, Long postId) throws AccessDeniedException {
 
-        UserDto userDto = userService.getUserByUserId(userId);
+        UserDto userDto = userService.findUserByUserId(userId);
 
         // 게시글이 존재하는지 확인
         Post post = postRepository.findById(postId).orElseThrow(
@@ -121,5 +126,17 @@ public class PostService {
 
     public Page<PostDTO> getSearchPosts(Pageable pageable, PostSearchCondition condition) {
         return postRepository.search(condition, pageable).map(PostDTO::new);
+    }
+
+    /**
+     * 주어진 ID의 게시글이 존재하는지 확인합니다.
+     *
+     * @param postId 확인할 게시글의 ID
+     * @throws EntityNotFoundException 게시글이 존재하지 않을 경우 발생
+     */
+    public void checkPostExistsById(Long postId) {
+        if (!postRepository.existsById(postId)) {
+            throw new EntityNotFoundException("게시글이 존재하지 않습니다. ID=" + postId);
+        }
     }
 }

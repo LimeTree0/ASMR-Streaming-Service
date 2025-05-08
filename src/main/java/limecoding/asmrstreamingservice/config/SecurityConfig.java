@@ -1,10 +1,10 @@
 package limecoding.asmrstreamingservice.config;
 
+import limecoding.asmrstreamingservice.sercurity.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -43,7 +43,7 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**",
                                 "/swagger-ui/**").permitAll()
                         .requestMatchers("/files/**").permitAll()
-                        .requestMatchers("/api/v1/user/me","/api/v1/post").authenticated()
+                        .requestMatchers("/api/v1/user/me","/api/v1/post","/api/v1/subscribe", "/api/v1/subscribe").authenticated()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(new JwtAuthFilter(jwtProvider, userDetailsService), UsernamePasswordAuthenticationFilter.class)

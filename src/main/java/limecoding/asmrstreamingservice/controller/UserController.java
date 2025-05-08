@@ -57,7 +57,7 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserResponseDTO>> getUserByUserId(@PathVariable String userId) {
 
         // 아이디로 유저 검색
-        UserDto userDto = userService.getUserByUserId(userId);
+        UserDto userDto = userService.findUserByUserId(userId);
 
         // 응답 DTO 변환
         UserResponseDTO userResponseDTO = new UserResponseDTO(userDto.getUserId(), userDto.getPassword());
@@ -74,7 +74,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    //TODO: 유저 수정
+    // 유저 수정
     @PutMapping("/{userId}")
     public ResponseEntity<ApiResponse<?>> updateUser(@PathVariable String userId,
                                                      @Valid @RequestBody UserUpdateRequestDTO userUpdateDto) {

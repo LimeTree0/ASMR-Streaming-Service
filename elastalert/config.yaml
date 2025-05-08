@@ -1,0 +1,18 @@
+# ./elastalert/config.yaml
+
+es_host: elasticsearch
+es_port: 9200
+
+writeback_index: elastalert_status
+buffer_time:
+  minutes: 1
+
+run_every:
+  minutes: 1
+
+rules_folder: /opt/elastalert/rules
+alert_time_limit:
+  days: 2
+
+# 디스코드 전송 시 필요한 설정
+# 아래는 각 룰에서 override 가능

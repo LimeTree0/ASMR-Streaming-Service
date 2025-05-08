@@ -3,11 +3,13 @@ package limecoding.asmrstreamingservice.controller;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import limecoding.asmrstreamingservice.common.response.ApiResponse;
-import limecoding.asmrstreamingservice.config.JwtProvider;
 import limecoding.asmrstreamingservice.dto.post.PostDTO;
 import limecoding.asmrstreamingservice.dto.post.PostRequestDTO;
 import limecoding.asmrstreamingservice.dto.post.PostSearchCondition;
 import limecoding.asmrstreamingservice.dto.post.PostUpdateRequestDTO;
+import limecoding.asmrstreamingservice.dto.post.comment.CommentDTO;
+import limecoding.asmrstreamingservice.dto.post.comment.CommentRequestDTO;
+import limecoding.asmrstreamingservice.service.PostCommentService;
 import limecoding.asmrstreamingservice.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
 
     private final PostService postService;
+    private final PostCommentService postCommentService;
 
     /**
      * 게시글을 추가한다.
@@ -76,7 +79,7 @@ public class PostController {
     public ResponseEntity<ApiResponse<?>> deletePost(
             @AuthenticationPrincipal User user,
             @RequestParam Long postId
-    ) throws AccessDeniedException, java.nio.file.AccessDeniedException {
+    ) throws AccessDeniedException {
 
         String userId = user.getUsername();
 
@@ -112,15 +115,50 @@ public class PostController {
 
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<?>> getSearchPosts(
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String order,
             @ParameterObject @ModelAttribute PostSearchCondition postSearchCondition
-            ) {
+    ) {
         Sort.Direction desc = order.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Page<PostDTO> searchPosts = postService.getSearchPosts(PageRequest.of(page, size, Sort.by(desc, sortBy)), postSearchCondition);
+        Page<PostDTO> searchPosts = postService.getSearchPosts(PageRequest.of(page - 1, size, Sort.by(desc, sortBy)), postSearchCondition);
 
         return ResponseEntity.ok(ApiResponse.success(searchPosts));
+    }
+
+    @GetMapping("/{postId}")
+    public ResponseEntity<ApiResponse<?>> getPostById(
+            @PathVariable Long postId
+    ) {
+        PostDTO postDTO = postService.getPostById(postId);
+
+        return ResponseEntity.ok(ApiResponse.success(postDTO));
+    }
+
+    @GetMapping("/{postId}/comments")
+    public ResponseEntity<ApiResponse<?>> getCommentsByPostId(
+            @PathVariable("postId") Long postId,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        Page<CommentDTO> commentListByPostId = postCommentService.getCommentListByPostId(postId, PageRequest.of(page - 1, size));
+
+        return ResponseEntity.ok(ApiResponse.success(commentListByPostId));
+    }
+
+    @PostMapping("/{postId}/comment")
+    public ResponseEntity<ApiResponse<?>> writeCommentsByPostId(
+            @AuthenticationPrincipal User user,
+            @PathVariable("postId") Long postId,
+            @RequestBody CommentRequestDTO commentRequestDTO) {
+
+        String username = user.getUsername();
+
+        log.info("comment user : {}", username);
+
+        CommentDTO commentDTO = postCommentService.writeCommentByPostId(postId, username,commentRequestDTO);
+
+        return ResponseEntity.ok(ApiResponse.success(commentDTO));
     }
 }

@@ -1,0 +1,18 @@
+name: Error Log Alert
+type: any
+index: spring-logs-*
+
+filter:
+  - query:
+      query_string:
+        query: "*"
+
+alert:
+  - discord
+
+discord_webhook_url: "https://discord.com/api/webhooks/1363297861676302396/b22I0sqidN1zKOZ0rBmc7-mwKd4vIJA4rucvP8eM1Ex2ssBNIqhjlzVevC-efR2qgQc0"
+
+discord_emoji_title: ":rotating_light:"
+discord_embed_color: 15158332  # 빨간색
+discord_embed_footer: "ElastAlert 2"
+discord_embed_icon_url: "https://example.com/icon.png"

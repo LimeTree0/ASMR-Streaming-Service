@@ -3,12 +3,10 @@ package limecoding.asmrstreamingservice.config;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import limecoding.asmrstreamingservice.common.response.ApiResponse;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.Date;
 
 @Component
@@ -17,26 +15,30 @@ public class JwtProvider {
     @Value("${jwt.secret}")
     private String secretKey;
 
+    @Value("${jwt.token.access.expiredMs}")
+    private Duration accessTokenExpireMs;
+
+    @Value("${jwt.token.refresh.expiredMs}")
+    private Duration refreshTokenExpireMs;
+
     public String createAccessToken(String userId) {
         Date now = new Date();
-        // 1시간
-        int expireMs = 1000 * 60 * 60;
+
         return Jwts.builder()
                 .setSubject(userId)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + expireMs))
+                .setExpiration(new Date(now.getTime() + accessTokenExpireMs.toMillis()))
                 .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public String createRefreshToken(String userId) {
         Date now = new Date();
-        // 1시간
-        int expireMs = 1000 * 60 * 60 * 24;
+
         return Jwts.builder()
                 .setSubject(userId)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + expireMs))
+                .setExpiration(new Date(now.getTime() + refreshTokenExpireMs.toMillis()))
                 .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), SignatureAlgorithm.HS256)
                 .compact();
     }

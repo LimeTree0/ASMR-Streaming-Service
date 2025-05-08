@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -34,11 +37,5 @@ public class Post {
     public void updatePost(String title, String content) {
         this.title = title;
         this.content = content;
-    }
-
-    public void updatePost(String title, String content, ASMRFile asmrFile) {
-        this.title = title;
-        this.content = content;
-        this.asmrFile = asmrFile;
     }
 }
