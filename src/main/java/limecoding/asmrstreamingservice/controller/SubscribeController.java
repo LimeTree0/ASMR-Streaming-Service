@@ -23,7 +23,7 @@ public class SubscribeController {
     private final SubscribeService subscribeService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<?>> subscribe(
+    public ResponseEntity<ApiResponse<Object>> subscribe(
             @AuthenticationPrincipal User user,
             @RequestBody RequestSubscribeDTO requestSubscribeDTO
     ) {
@@ -35,7 +35,7 @@ public class SubscribeController {
     }
 
     @DeleteMapping
-    public ResponseEntity<ApiResponse<?>> cancel(
+    public ResponseEntity<ApiResponse<Object>> cancel(
             @AuthenticationPrincipal User user,
             @RequestBody RequestSubscribeDTO requestSubscribeDTO
     ) {
@@ -50,7 +50,7 @@ public class SubscribeController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<ApiResponse<?>> getSubscribeList(
+    public ResponseEntity<ApiResponse<Object>> getSubscribeList(
             @AuthenticationPrincipal User user
     ) {
         String username = user.getUsername();
@@ -61,7 +61,7 @@ public class SubscribeController {
     }
 
     @GetMapping("/status")
-    public ResponseEntity<ApiResponse<?>> checkSubscribeTargetUser(
+    public ResponseEntity<ApiResponse<Object>> checkSubscribeTargetUser(
             @AuthenticationPrincipal User user,
             @RequestParam(name = "targetUser") String targetUserId
     ) {

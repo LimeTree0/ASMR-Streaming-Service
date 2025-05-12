@@ -104,13 +104,13 @@ public class PostService {
      * @param postId
      * @return
      */
-    public PostDTO getPostById(Long postId) {
-        Post postEntity = getPostEntityById(postId);
+    public PostDTO findPostById(Long postId) {
+        Post postEntity = findPostEntityById(postId);
 
         return new PostDTO(postEntity);
     }
 
-    public Post getPostEntityById(Long postId) {
+    public Post findPostEntityById(Long postId) {
         return postRepository.findById(postId).orElseThrow(
                 () -> new EntityNotFoundException("해당 게시글을 찾을 수 없습니다."));
     }

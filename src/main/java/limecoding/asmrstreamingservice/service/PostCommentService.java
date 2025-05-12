@@ -21,7 +21,7 @@ public class PostCommentService {
 
     public CommentDTO writeCommentByPostId(Long postId, String username, CommentRequestDTO commentRequestDTO) {
 
-        Post postEntity = postService.getPostEntityById(postId);
+        Post postEntity = postService.findPostEntityById(postId);
 
         PostComment postComment = PostComment.builder()
                 .post(postEntity)

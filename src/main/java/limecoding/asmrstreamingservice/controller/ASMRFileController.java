@@ -30,7 +30,7 @@ public class ASMRFileController {
     private final ASMRFileService asmrFileService;
 
     @PostMapping(value = "/upload", consumes = {"multipart/form-data"})
-    public ResponseEntity<ApiResponse<?>> uploadFile(
+    public ResponseEntity<ApiResponse<Object>> uploadFile(
             @RequestPart("file") MultipartFile file) throws IOException {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body(ApiResponse.error(HttpStatus.BAD_REQUEST, "파일이 비어있습니다", null));
@@ -46,7 +46,7 @@ public class ASMRFileController {
     }
 
     @GetMapping("/{filename}")
-    public ResponseEntity<ApiResponse<?>> getFile(@PathVariable String filename) {
+    public ResponseEntity<ApiResponse<Object>> getFile(@PathVariable String filename) {
 
         return ResponseEntity.ok(ApiResponse.success("/file/" + filename));
     }

@@ -37,13 +37,15 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/v1/auth/**",
-                                "/api/v1/user/signup"
-                                ).permitAll()
-                        .requestMatchers("/v3/api-docs/**",
-                                "/swagger-ui/**").permitAll()
-                        .requestMatchers("/files/**").permitAll()
-                        .requestMatchers("/api/v1/user/me","/api/v1/post","/api/v1/subscribe", "/api/v1/subscribe").authenticated()
+                                "/api/v1/user/me",
+                                "/api/v1/auth/logout",
+                                "/api/v1/auth/refresh",
+                                "/api/v1/post",
+                                "/api/v1/subscribe",
+                                "/api/v1/subscribe",
+                                "api/v1/wishlist",
+                                "api/v1/wishlist/*"
+                        ).authenticated()
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(new JwtAuthFilter(jwtProvider, userDetailsService), UsernamePasswordAuthenticationFilter.class)

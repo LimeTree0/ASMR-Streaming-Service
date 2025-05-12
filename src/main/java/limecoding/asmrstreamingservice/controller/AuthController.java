@@ -31,7 +31,7 @@ public class AuthController {
     private final AlertService alertService;
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<?>> login(
+    public ResponseEntity<ApiResponse<Object>> login(
             @Valid @RequestBody LoginRequestDTO dto,
             BindingResult bindingResult,
             HttpServletResponse response
@@ -83,7 +83,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<?>> logout(
+    public ResponseEntity<ApiResponse<Object>> logout(
             @CookieValue(name = "refreshToken", required = false) String refreshToken,
             HttpServletResponse response) {
 
@@ -119,7 +119,7 @@ public class AuthController {
 
 
     @PostMapping("/refresh")
-    public ResponseEntity<ApiResponse<?>> refreshToken(
+    public ResponseEntity<ApiResponse<Object>> refreshToken(
             @CookieValue(name = "refreshToken", required = false) String refreshToken,
             HttpServletResponse response) {
 

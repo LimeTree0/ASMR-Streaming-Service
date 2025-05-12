@@ -42,7 +42,7 @@ public class PostController {
      * @return
      */
     @PostMapping
-    public ResponseEntity<ApiResponse<?>> createPost(
+    public ResponseEntity<ApiResponse<Object>> createPost(
             @AuthenticationPrincipal User user,
             @RequestBody PostRequestDTO requestDTO) {
 
@@ -63,7 +63,7 @@ public class PostController {
      * @return
      */
     @PutMapping
-    public ResponseEntity<ApiResponse<?>> updatePost(
+    public ResponseEntity<ApiResponse<Object>> updatePost(
             @AuthenticationPrincipal User user,
             @RequestBody PostUpdateRequestDTO updateRequestDTO) {
 
@@ -76,7 +76,7 @@ public class PostController {
     }
 
     @DeleteMapping
-    public ResponseEntity<ApiResponse<?>> deletePost(
+    public ResponseEntity<ApiResponse<Object>> deletePost(
             @AuthenticationPrincipal User user,
             @RequestParam Long postId
     ) throws AccessDeniedException {
@@ -99,7 +99,7 @@ public class PostController {
      * @return
      */
     @GetMapping("/list")
-    public ResponseEntity<ApiResponse<?>> getAllPosts(
+    public ResponseEntity<ApiResponse<Object>> getAllPosts(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
@@ -114,7 +114,7 @@ public class PostController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse<?>> getSearchPosts(
+    public ResponseEntity<ApiResponse<Object>> getSearchPosts(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
@@ -128,16 +128,16 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
-    public ResponseEntity<ApiResponse<?>> getPostById(
+    public ResponseEntity<ApiResponse<Object>> getPostById(
             @PathVariable Long postId
     ) {
-        PostDTO postDTO = postService.getPostById(postId);
+        PostDTO postDTO = postService.findPostById(postId);
 
         return ResponseEntity.ok(ApiResponse.success(postDTO));
     }
 
     @GetMapping("/{postId}/comments")
-    public ResponseEntity<ApiResponse<?>> getCommentsByPostId(
+    public ResponseEntity<ApiResponse<Object>> getCommentsByPostId(
             @PathVariable("postId") Long postId,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size
@@ -148,7 +148,7 @@ public class PostController {
     }
 
     @PostMapping("/{postId}/comment")
-    public ResponseEntity<ApiResponse<?>> writeCommentsByPostId(
+    public ResponseEntity<ApiResponse<Object>> writeCommentsByPostId(
             @AuthenticationPrincipal User user,
             @PathVariable("postId") Long postId,
             @RequestBody CommentRequestDTO commentRequestDTO) {

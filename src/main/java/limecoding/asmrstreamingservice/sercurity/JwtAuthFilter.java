@@ -22,14 +22,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
     private final UserDetailsService userDetailsService;
-    private final List<String> excludedPaths = Arrays.asList(
-            "/api/v1/auth/logout",
-            "/api/v1/auth/refresh",
-            "/api/v1/user/me",
-            "/api/v1/post",
-            "/api/v1/subscribe",
-            "/api/v1/subscribe"
-            );
 
     public JwtAuthFilter(JwtProvider jwtProvider, UserDetailsService userDetailsService) {
         this.jwtProvider = jwtProvider;
@@ -42,16 +34,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String accessToken = extractAccessToken(request.getCookies());
 
-        if (checkUrl(request.getRequestURL().toString()) && accessToken != null) {
+        if (accessToken != null && jwtProvider.validateToken(accessToken)) {
             log.info("check url : {}", request.getRequestURL());
-            if (jwtProvider.validateToken(accessToken)) {
-                String userId = jwtProvider.getUserId(accessToken);
-                UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
+            String userId = jwtProvider.getUserId(accessToken);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
+
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
         }
 
         filterChain.doFilter(request, response);
@@ -67,9 +60,5 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         return null;
-    }
-
-    private boolean checkUrl(String url) {
-        return excludedPaths.stream().anyMatch(url::contains);
     }
 }

@@ -23,5 +23,5 @@ public class NotificationRead {
     private Notification notification;
 
     @Column(nullable = false)
-    private boolean isRead = false;
+    private boolean isRead;
 }

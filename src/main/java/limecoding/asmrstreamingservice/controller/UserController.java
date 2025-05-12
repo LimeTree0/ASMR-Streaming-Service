@@ -33,7 +33,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<?>> createUser(@Valid @RequestBody CreateUserDto createUserDto, BindingResult bindingResult) {
+    public ResponseEntity<ApiResponse<Object>> createUser(@Valid @RequestBody CreateUserDto createUserDto, BindingResult bindingResult) {
 
         // 파라미터 검증
         if (bindingResult.hasErrors()) {
@@ -68,7 +68,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<ApiResponse<?>> deleteUser(@PathVariable String userId) {
+    public ResponseEntity<ApiResponse<Object>> deleteUser(@PathVariable String userId) {
         userService.deleteUser(userId);
 
         return ResponseEntity.noContent().build();
@@ -76,7 +76,7 @@ public class UserController {
 
     // 유저 수정
     @PutMapping("/{userId}")
-    public ResponseEntity<ApiResponse<?>> updateUser(@PathVariable String userId,
+    public ResponseEntity<ApiResponse<Object>> updateUser(@PathVariable String userId,
                                                      @Valid @RequestBody UserUpdateRequestDTO userUpdateDto) {
         userService.updateUser(userId, userUpdateDto);
 
@@ -84,14 +84,14 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<?>> me(@AuthenticationPrincipal User user) {
+    public ResponseEntity<ApiResponse<Object>> me(@AuthenticationPrincipal User user) {
         String username = user.getUsername();
 
         return ResponseEntity.ok(ApiResponse.success(username));
     }
 
     @GetMapping("/list")
-    public ResponseEntity<ApiResponse<?>> getUserList(
+    public ResponseEntity<ApiResponse<Object>> getUserList(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sort,
