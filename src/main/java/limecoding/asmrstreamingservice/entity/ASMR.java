@@ -7,26 +7,31 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Builder
+
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Getter
 @Entity
-public class PostComment {
+public class ASMR {
 
     @Id
     @GeneratedValue
     private Long id;
 
-    private String comment;
-
     @Column(nullable = false)
-    private String username;
+    private Integer price;
 
-    @ManyToOne
-    @JoinColumn(name = "post_id")
+    @OneToOne
+    @JoinColumn(name = "post_id", nullable = true)
     private Post post;
 
+    @OneToOne
+    @JoinColumn(name = "file_id", nullable = false)
+    private FileEntity fileEntity;
 
+    public void updatePost(Post post) {
+        this.post = post;
 
+    }
 }

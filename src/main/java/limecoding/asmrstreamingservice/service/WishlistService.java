@@ -3,7 +3,7 @@ package limecoding.asmrstreamingservice.service;
 import jakarta.persistence.EntityNotFoundException;
 import limecoding.asmrstreamingservice.dto.wishlist.RequestWishlistDTO;
 import limecoding.asmrstreamingservice.dto.wishlist.WishlistDTO;
-import limecoding.asmrstreamingservice.entity.Post;
+import limecoding.asmrstreamingservice.entity.post.Post;
 import limecoding.asmrstreamingservice.entity.User;
 import limecoding.asmrstreamingservice.entity.wishlist.Wishlist;
 import limecoding.asmrstreamingservice.exception.custom.WishlistUserNotMatchException;

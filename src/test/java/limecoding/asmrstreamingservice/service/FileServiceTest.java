@@ -1,8 +1,9 @@
 package limecoding.asmrstreamingservice.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import limecoding.asmrstreamingservice.entity.ASMRFile;
-import limecoding.asmrstreamingservice.repository.ASMRFileRepository;
+import limecoding.asmrstreamingservice.entity.FileEntity;
+import limecoding.asmrstreamingservice.exception.custom.FileSaveFailedException;
+import limecoding.asmrstreamingservice.repository.FileRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,13 +26,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class ASMRFileServiceTest {
+class FileServiceTest {
 
     @Mock
-    private ASMRFileService asmrFileService;
+    private FileService fileService;
 
     @Mock
-    private ASMRFileRepository asmrFileRepository;
+    private FileRepository fileRepository;
 
     @TempDir
     Path tempDIr;
@@ -40,8 +41,8 @@ class ASMRFileServiceTest {
     void setUp() throws IOException {
         String uploadDir = tempDIr.toString();
 
-        asmrFileService = new ASMRFileService(
-                asmrFileRepository,
+        fileService = new FileService(
+                fileRepository,
                 uploadDir
         );
     }
@@ -50,33 +51,33 @@ class ASMRFileServiceTest {
     @DisplayName("파일 아이디로 파일 조회시 해당 파일을 ASMRFile 객체 형태로 반환한다.")
     void findASMRFileById_shouldReturnASMRFile_WhenASMRFileExist() {
         // Given: mock ASMRFile object and configure repository to return it when ID is 1
-        ASMRFile mockFile = ASMRFile.builder()
+        FileEntity fileEntity = FileEntity.builder()
                 .id(1L)
                 .fileName("test.mp3")
                 .filePath("/upload/test.mp3")
                 .build();
 
-        when(asmrFileRepository.findById(1L)).thenReturn(Optional.of(mockFile));
+        when(fileRepository.findById(1L)).thenReturn(Optional.of(fileEntity));
 
         // When: call findASMRFileById with the ID
-        ASMRFile asmrFile = asmrFileService.findASMRFileById(1L);
+        FileEntity fileById = fileService.findFileById(1L);
 
         // Then: verify that the returned  ASMRFile is correct
-        assertNotNull(asmrFile);
-        assertThat(asmrFile.getId()).isEqualTo(1L);
-        assertThat(asmrFile.getFileName()).isEqualTo("test.mp3");
-        assertThat(asmrFile.getFilePath()).isEqualTo("/upload/test.mp3");
+        assertNotNull(fileById);
+        assertThat(fileById.getId()).isEqualTo(1L);
+        assertThat(fileById.getFileName()).isEqualTo("test.mp3");
+        assertThat(fileById.getFilePath()).isEqualTo("/upload/test.mp3");
     }
 
     @Test
     @DisplayName("없는 파일 아이디로 파일 조회시 EntityNotFoundException을 반환한다.")
     void findASMRFileById_shouldThrowEntityNotFoundException_whenFileDoesNotExist() {
         // Given: mock the repository to return Optional.empty() (i.e., the file does not exist)
-        when(asmrFileRepository.findById(1L)).thenReturn(Optional.empty());
+        when(fileRepository.findById(1L)).thenReturn(Optional.empty());
 
         // When & Then: calling findASMRFileById shold throw an EntityNotFoundException
         // The Exception message must be "해당 파일을 찾을 수 없습니다."
-        assertThatThrownBy(() -> asmrFileService.findASMRFileById(1L))
+        assertThatThrownBy(() -> fileService.findFileById(1L))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("해당 파일을 찾을 수 없습니다.");
     }
@@ -89,20 +90,20 @@ class ASMRFileServiceTest {
                 new MockMultipartFile("file", "test.mp3",
                         "audio/mpeg", "sample content".getBytes());
 
-        ASMRFile mockFile = ASMRFile.builder()
+        FileEntity mockFile = FileEntity.builder()
                 .id(1L)
                 .fileName("test.mp3")
                 .filePath("/uploads/test.mp3")
                 .build();
 
-        when(asmrFileRepository.save(any(ASMRFile.class))).thenReturn(mockFile);
+        when(fileRepository.save(any(FileEntity.class))).thenReturn(mockFile);
 
         // When: call uploadASMRFile and get the returned file ID
-        Long found = assertDoesNotThrow(() -> asmrFileService.uploadASMRFile(file));
+        FileEntity found = assertDoesNotThrow(() -> fileService.uploadFile(file));
 
         // Then: verify that the returned file ID is not null and matches the expected value
         assertNotNull(found);
-        assertEquals(1L, found.longValue());
+        assertEquals(1L, found.getId().longValue());
     }
 
     @Test
@@ -112,7 +113,7 @@ class ASMRFileServiceTest {
         MockMultipartFile file = null;
 
         // When & Then: verify that uploadASMRFile throws NullPointerException when given a null file
-        assertThatThrownBy(() -> asmrFileService.uploadASMRFile(file))
+        assertThatThrownBy(() -> fileService.uploadFile(file))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessage("MultipartFile은 null일 될 수 없습니다.");
     }
@@ -127,8 +128,8 @@ class ASMRFileServiceTest {
 
         // When & Then: verify that uploadASMRFile throws IOException
         // when failing to read file input stream
-        assertThatThrownBy(() -> asmrFileService.uploadASMRFile(mockFile))
-                .isInstanceOf(IOException.class)
-                .hasMessage("Stream failure");
+        assertThatThrownBy(() -> fileService.uploadFile(mockFile))
+                .isInstanceOf(FileSaveFailedException.class)
+                .hasMessage("파일 저장을 실패했습니다.");
     }
 }

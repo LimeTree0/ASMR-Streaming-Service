@@ -1,6 +1,6 @@
 package limecoding.asmrstreamingservice.repository;
 
-import limecoding.asmrstreamingservice.entity.Post;
+import limecoding.asmrstreamingservice.entity.post.Post;
 import limecoding.asmrstreamingservice.entity.User;
 import limecoding.asmrstreamingservice.entity.wishlist.Wishlist;
 import org.springframework.data.domain.Page;

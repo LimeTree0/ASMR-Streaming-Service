@@ -3,9 +3,11 @@ package limecoding.asmrstreamingservice.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import limecoding.asmrstreamingservice.common.response.ApiResponse;
-import limecoding.asmrstreamingservice.entity.ASMRFile;
-import limecoding.asmrstreamingservice.service.ASMRFileService;
-import limecoding.asmrstreamingservice.service.PostService;
+import limecoding.asmrstreamingservice.dto.asmr.ASMRSaveRequestDTO;
+import limecoding.asmrstreamingservice.dto.asmr.AsmrDTO;
+import limecoding.asmrstreamingservice.entity.ASMR;
+import limecoding.asmrstreamingservice.service.ASMRService;
+import limecoding.asmrstreamingservice.service.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,22 +29,19 @@ import java.util.Map;
 @RequestMapping("/api/v1/file")
 public class ASMRFileController {
 
-    private final ASMRFileService asmrFileService;
+    private final ASMRService asmrService;
 
     @PostMapping(value = "/upload", consumes = {"multipart/form-data"})
     public ResponseEntity<ApiResponse<Object>> uploadFile(
-            @RequestPart("file") MultipartFile file) throws IOException {
-        if (file.isEmpty()) {
+            @ModelAttribute ASMRSaveRequestDTO asmrSaveRequestDTO)  {
+
+        if (asmrSaveRequestDTO.getFile().isEmpty()) {
             return ResponseEntity.badRequest().body(ApiResponse.error(HttpStatus.BAD_REQUEST, "파일이 비어있습니다", null));
         }
 
-        Long fileId = asmrFileService.uploadASMRFile(file);
+        AsmrDTO asmrDTO = asmrService.saveASMR(asmrSaveRequestDTO);
 
-        Map<String, String> map = new HashMap<>();
-
-        map.put("fileId", String.valueOf(fileId));
-
-        return ResponseEntity.ok(ApiResponse.success(map));
+        return ResponseEntity.ok(ApiResponse.success(asmrDTO));
     }
 
     @GetMapping("/{filename}")
@@ -58,11 +57,11 @@ public class ASMRFileController {
             HttpServletRequest request,
             HttpServletResponse response
     ) throws IOException {
-        ASMRFile asmrFile = asmrFileService.findASMRFileById(fileId);
+        AsmrDTO asmrDTO = asmrService.findASMRById(fileId);
 
-        log.info("Streaming audio file: {}", asmrFile.getFileName());
+        log.info("Streaming audio file: {}", asmrDTO.getFileEntityDTO().getFileName());
 
-        File audioFile = new File(asmrFile.getFilePath());
+        File audioFile = new File(asmrDTO.getFileEntityDTO().getFilePath());
         long fileLength = audioFile.length();
 
         if (rangeHeader == null) {

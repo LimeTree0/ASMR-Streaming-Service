@@ -3,12 +3,10 @@ package limecoding.asmrstreamingservice.controller;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import limecoding.asmrstreamingservice.common.response.ApiResponse;
-import limecoding.asmrstreamingservice.dto.post.PostDTO;
-import limecoding.asmrstreamingservice.dto.post.PostRequestDTO;
-import limecoding.asmrstreamingservice.dto.post.PostSearchCondition;
-import limecoding.asmrstreamingservice.dto.post.PostUpdateRequestDTO;
+import limecoding.asmrstreamingservice.dto.post.*;
 import limecoding.asmrstreamingservice.dto.post.comment.CommentDTO;
 import limecoding.asmrstreamingservice.dto.post.comment.CommentRequestDTO;
+import limecoding.asmrstreamingservice.service.ASMRService;
 import limecoding.asmrstreamingservice.service.PostCommentService;
 import limecoding.asmrstreamingservice.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -41,10 +39,10 @@ public class PostController {
      * @param requestDTO
      * @return
      */
-    @PostMapping
+    @PostMapping("/asmr")
     public ResponseEntity<ApiResponse<Object>> createPost(
             @AuthenticationPrincipal User user,
-            @RequestBody PostRequestDTO requestDTO) {
+            @RequestBody RequestAsmrPostDTO requestDTO) {
 
         String userId = user.getUsername();
 
@@ -134,6 +132,15 @@ public class PostController {
         PostDTO postDTO = postService.findPostById(postId);
 
         return ResponseEntity.ok(ApiResponse.success(postDTO));
+    }
+
+    @GetMapping("/asmr/{postId}")
+    public ResponseEntity<ApiResponse<Object>> getAsmrPostById(
+            @PathVariable Long postId
+    ) {
+        AsmrPostDTO asmrPostDTO = postService.findAsmrPostById(postId);
+
+        return ResponseEntity.ok(ApiResponse.success(asmrPostDTO));
     }
 
     @GetMapping("/{postId}/comments")

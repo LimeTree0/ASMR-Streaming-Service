@@ -2,14 +2,13 @@ package limecoding.asmrstreamingservice.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import limecoding.asmrstreamingservice.dto.post.PostDTO;
-import limecoding.asmrstreamingservice.dto.post.PostRequestDTO;
-import limecoding.asmrstreamingservice.dto.post.PostSearchCondition;
-import limecoding.asmrstreamingservice.dto.post.PostUpdateRequestDTO;
+import limecoding.asmrstreamingservice.dto.asmr.AsmrDTO;
+import limecoding.asmrstreamingservice.dto.post.*;
 import limecoding.asmrstreamingservice.dto.user.UserDto;
-import limecoding.asmrstreamingservice.entity.ASMRFile;
-import limecoding.asmrstreamingservice.entity.Post;
+import limecoding.asmrstreamingservice.entity.ASMR;
+import limecoding.asmrstreamingservice.entity.post.Post;
 import limecoding.asmrstreamingservice.entity.User;
+import limecoding.asmrstreamingservice.entity.post.PostType;
 import limecoding.asmrstreamingservice.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,32 +25,34 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserService userService;
-    private final ASMRFileService asmrFileService;
+    private final ASMRService asmrService;
     private final NotificationService notificationService;
 
     /**
      * 게시글을 추가한다.
      *
-     * @param postRequestDTO
+     * @param requestAsmrPostDTO
      */
-    public void createPost(String userId, PostRequestDTO postRequestDTO) {
+    public void createPost(String userId, RequestAsmrPostDTO requestAsmrPostDTO) {
 
         log.info("createPost userId: {}", userId);
-        log.info("createPost : {}", postRequestDTO.toString());
+        log.info("createPost : {}", requestAsmrPostDTO.toString());
 
         User user = userService.findUserEntityByUserId(userId);
-        ASMRFile asmrFile = asmrFileService.findASMRFileById(postRequestDTO.getFileId());
+        ASMR asmrEntity = asmrService.findASMREntityById(requestAsmrPostDTO.getAsmrFileId());
 
         Post post = Post.builder()
-                .title(postRequestDTO.getTitle())
-                .content(postRequestDTO.getContent())
+                .title(requestAsmrPostDTO.getTitle())
+                .content(requestAsmrPostDTO.getContent())
                 .user(user)
-                .asmrFile(asmrFile)
+                .postType(PostType.ASMR)
                 .build();
 
-        postRepository.save(post);
+        Post save = postRepository.save(post);
 
-        String content = user.getUserId() + "님이 새로운 영상을 올렸습니다: " + postRequestDTO.getTitle();
+        asmrEntity.updatePost(save);
+
+        String content = user.getUserId() + "님이 새로운 영상을 올렸습니다: " + requestAsmrPostDTO.getTitle();
         notificationService.notifyAll(userId, content);
     }
 
@@ -108,6 +109,16 @@ public class PostService {
         Post postEntity = findPostEntityById(postId);
 
         return new PostDTO(postEntity);
+    }
+
+    public AsmrPostDTO findAsmrPostById(Long postId) {
+        Post post = findPostEntityById(postId);
+        AsmrDTO asmrDTO = asmrService.findASMRById(post.getId());
+
+        AsmrPostDTO asmrPostDTO = new AsmrPostDTO(post);
+        asmrPostDTO.setAsmrDTO(asmrDTO);
+
+        return asmrPostDTO;
     }
 
     public Post findPostEntityById(Long postId) {

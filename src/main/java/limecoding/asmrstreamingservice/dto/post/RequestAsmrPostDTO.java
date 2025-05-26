@@ -7,8 +7,8 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class PostRequestDTO {
+public class RequestAsmrPostDTO {
     private String title;
     private String content;
-    private Long fileId;
+    private Long asmrFileId;
 }

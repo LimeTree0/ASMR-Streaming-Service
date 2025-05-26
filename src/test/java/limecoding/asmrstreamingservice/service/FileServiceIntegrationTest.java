@@ -1,7 +1,7 @@
 package limecoding.asmrstreamingservice.service;
 
 import jakarta.transaction.Transactional;
-import limecoding.asmrstreamingservice.entity.ASMRFile;
+import limecoding.asmrstreamingservice.entity.FileEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +16,10 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @Transactional
 @SpringBootTest
-class ASMRFileServiceIntegrationTest {
+class FileServiceIntegrationTest {
 
     @Autowired
-    private ASMRFileService asmrFileService;
+    private FileService fileService;
 
     @Value("${upload.dir}")
     private Path uploadDir;
@@ -35,17 +35,17 @@ class ASMRFileServiceIntegrationTest {
                         "audio/mpeg", "Hello, ASMR!!".getBytes());
 
         // When : uploading the file via service layer (should not throw exception)
-        Long uploadedFileId = assertDoesNotThrow(() -> asmrFileService.uploadASMRFile(multipartFile));
+        FileEntity savedFileEntity = assertDoesNotThrow(() -> fileService.uploadFile(multipartFile));
 
         // And : retrieving the uploaded file from the service (should not throw exception)
-        ASMRFile savedAsmrFile = assertDoesNotThrow(() -> asmrFileService.findASMRFileById(uploadedFileId));
+        FileEntity fileEntityFindById = assertDoesNotThrow(() -> fileService.findFileById(savedFileEntity.getId()));
 
         // Then : the saved file name should have UUID prefix and correct original file name
-        assertThat(savedAsmrFile.getFileName())
+        assertThat(fileEntityFindById.getFileName())
                 .endsWith(originalFileName)
                 .matches("^[0-9a-fA-F\\-]{36}_.+\\.mp3$");
 
         // And : the saved file path should contain the file name
-        assertThat(savedAsmrFile.getFilePath()).contains(savedAsmrFile.getFileName());
+        assertThat(fileEntityFindById.getFilePath()).contains(fileEntityFindById.getFileName());
     }
 }

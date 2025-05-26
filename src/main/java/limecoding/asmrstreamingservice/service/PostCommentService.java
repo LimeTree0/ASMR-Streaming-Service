@@ -2,7 +2,7 @@ package limecoding.asmrstreamingservice.service;
 
 import limecoding.asmrstreamingservice.dto.post.comment.CommentDTO;
 import limecoding.asmrstreamingservice.dto.post.comment.CommentRequestDTO;
-import limecoding.asmrstreamingservice.entity.Post;
+import limecoding.asmrstreamingservice.entity.post.Post;
 import limecoding.asmrstreamingservice.entity.PostComment;
 import limecoding.asmrstreamingservice.repository.PostCommentRepository;
 import lombok.RequiredArgsConstructor;

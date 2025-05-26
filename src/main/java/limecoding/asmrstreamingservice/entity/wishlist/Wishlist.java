@@ -1,7 +1,7 @@
 package limecoding.asmrstreamingservice.entity.wishlist;
 
 import jakarta.persistence.*;
-import limecoding.asmrstreamingservice.entity.Post;
+import limecoding.asmrstreamingservice.entity.post.Post;
 import limecoding.asmrstreamingservice.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
