@@ -9,7 +9,6 @@ import limecoding.asmrstreamingservice.entity.FileEntity;
 import limecoding.asmrstreamingservice.repository.asmr.ASMRRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 @Transactional
 @RequiredArgsConstructor
@@ -43,6 +42,7 @@ public class ASMRService {
 
     /**
      * find asmr entity by id. return ${@link ASMR} entity if success, or not, throw {@link EntityNotFoundException}
+     *
      * @param id asmr entity id
      * @return entity of ASMR
      * @throws EntityNotFoundException throw if failed to find ASMR entity
@@ -54,22 +54,6 @@ public class ASMRService {
     }
 
     public AsmrDTO findASMRById(Long id) {
-        ASMR asmrEntityById = findASMREntityById(id);
-
-        return AsmrDTO.from(asmrEntityById);
-    }
-
-    /**
-     * delete asmr form database.
-     * @param id asmr entity id saved in database
-     */
-    public void deleteASMRById(Long id) {
-        ASMR asmr = findASMREntityById(id);
-
-        asmrRepository.delete(asmr);
-    }
-
-    public boolean checkASMRExist(Long id) {
-        return asmrRepository.existsById(id);
+        return AsmrDTO.from(findASMREntityById(id));
     }
 }

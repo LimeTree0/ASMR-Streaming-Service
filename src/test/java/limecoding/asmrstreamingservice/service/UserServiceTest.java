@@ -74,18 +74,4 @@ class UserServiceTest {
         assertThatThrownBy(() -> userService.findUserEntityByUserId(userId))
                 .isInstanceOf(IllegalArgumentException.class);
     }
-
-    // TODO: 새로운 유저 생성시
-
-    // TODO: 중복된 유저 생성시
-
-    // TODO: 유저 정보 수정시
-
-    // TODO: 없는 유저 정보 수정시
-
-    //TODO: 유저 삭제시
-
-    //TODO: 없는 유저 삭제시
-
-
 }
