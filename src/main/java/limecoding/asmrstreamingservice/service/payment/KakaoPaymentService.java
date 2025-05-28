@@ -32,7 +32,7 @@ public class KakaoPaymentService implements PaymentService {
 
         ResponseEntity<KakaoPaymentResponseDTO> response = restClient.post()
                 .uri("/online/v1/payment/ready")
-                .header("Authorization", "SECRET_KEY DEVF362EC0133E8052DC8FBC0525F7FFCDA52DDC")
+                .header("Authorization", "")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(kakaoPaymentDTO)
                 .retrieve()
@@ -68,15 +68,13 @@ public class KakaoPaymentService implements PaymentService {
 
         ResponseEntity<KakaoPaymentApproveResponseDTO> entity = restClient.post()
                 .uri("/online/v1/payment/approve")
-                .header("Authorization", "SECRET_KEY DEVF362EC0133E8052DC8FBC0525F7FFCDA52DDC")
+                .header("Authorization", "")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(approveDTO)
                 .retrieve()
                 .toEntity(KakaoPaymentApproveResponseDTO.class);
 
-        KakaoPaymentApproveResponseDTO body = entity.getBody();
-
-        return body;
+        return entity.getBody();
 
     }
 

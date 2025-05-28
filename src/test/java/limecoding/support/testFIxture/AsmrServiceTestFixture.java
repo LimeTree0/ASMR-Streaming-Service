@@ -1,5 +1,6 @@
-package limecoding.support;
+package limecoding.support.testFIxture;
 
+import limecoding.asmrstreamingservice.dto.asmr.ASMRSaveRequestDTO;
 import limecoding.asmrstreamingservice.entity.ASMR;
 import limecoding.asmrstreamingservice.entity.FileEntity;
 import limecoding.asmrstreamingservice.entity.User;
@@ -7,7 +8,7 @@ import limecoding.asmrstreamingservice.entity.post.Post;
 import limecoding.asmrstreamingservice.entity.post.PostType;
 import org.springframework.mock.web.MockMultipartFile;
 
-public class TestFixture {
+public class AsmrServiceTestFixture {
 
     public static MockMultipartFile createMockMultipartFile(String fileName) {
         return new MockMultipartFile(fileName, fileName + ".mp3",
@@ -53,5 +54,16 @@ public class TestFixture {
         FileEntity defaultFile = createFileEntity(1L, mockMultipartFile);
 
         return createASMR(id, defaultPost, defaultFile);
+    }
+
+    public static ASMRSaveRequestDTO createASMRSaveRequestDTO(String fileName, Integer price) {
+
+        MockMultipartFile mockMultipartFile = createMockMultipartFile(fileName);
+        ASMRSaveRequestDTO asmrSaveRequestDTO = new ASMRSaveRequestDTO();
+
+        asmrSaveRequestDTO.setFile(mockMultipartFile);
+        asmrSaveRequestDTO.setPrice(price);
+
+        return asmrSaveRequestDTO;
     }
 }

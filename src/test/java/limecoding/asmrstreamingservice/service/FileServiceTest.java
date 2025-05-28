@@ -9,7 +9,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
@@ -29,7 +28,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class FileServiceTest {
 
-    @InjectMocks
     private FileService fileService;
 
     @Mock
@@ -116,7 +114,7 @@ class FileServiceTest {
         // When & Then: verify that uploadASMRFile throws NullPointerException when given a null file
         assertThatThrownBy(() -> fileService.uploadFile(file))
                 .isInstanceOf(NullPointerException.class)
-                .hasMessage("MultipartFile은 null일 될 수 없습니다.");
+                .hasMessage("MultipartFile은 null이거나 비어 있을 수 없습니다.");
     }
 
     @Test

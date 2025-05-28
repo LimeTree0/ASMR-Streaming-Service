@@ -6,6 +6,7 @@ import limecoding.asmrstreamingservice.dto.asmr.ASMRSaveRequestDTO;
 import limecoding.asmrstreamingservice.dto.asmr.AsmrDTO;
 import limecoding.asmrstreamingservice.entity.ASMR;
 import limecoding.asmrstreamingservice.entity.FileEntity;
+import limecoding.asmrstreamingservice.exception.custom.business.PriceException;
 import limecoding.asmrstreamingservice.repository.asmr.ASMRRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,13 +26,14 @@ public class ASMRService {
      * @return ASMR {@link ASMR} entity of saving asmr file
      */
     public AsmrDTO saveASMR(ASMRSaveRequestDTO requestDTO) {
-        Integer price = requestDTO.getPrice();
+
+        asmrSaveRequestDtoCheck(requestDTO);
 
         // trying to save file
         FileEntity fileEntity = fileService.uploadFile(requestDTO.getFile());
 
         ASMR asmr = ASMR.builder()
-                .price(price)
+                .price(requestDTO.getPrice())
                 .fileEntity(fileEntity)
                 .build();
 
@@ -55,5 +57,11 @@ public class ASMRService {
 
     public AsmrDTO findASMRById(Long id) {
         return AsmrDTO.from(findASMREntityById(id));
+    }
+
+    public void asmrSaveRequestDtoCheck(ASMRSaveRequestDTO requestDTO) {
+        if (requestDTO.getPrice() < 0) {
+            throw new PriceException("가격은 0보다 작을 수 없습니다.");
+        }
     }
 }

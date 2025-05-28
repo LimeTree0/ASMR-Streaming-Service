@@ -5,11 +5,8 @@ import limecoding.asmrstreamingservice.entity.FileEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
-
-import java.nio.file.Path;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -20,9 +17,6 @@ class FileServiceIntegrationTest {
 
     @Autowired
     private FileService fileService;
-
-    @Value("${upload.dir}")
-    private Path uploadDir;
 
     @Test
     @DisplayName("Should upload file and retrieve it without Exception, and validate file name and path")

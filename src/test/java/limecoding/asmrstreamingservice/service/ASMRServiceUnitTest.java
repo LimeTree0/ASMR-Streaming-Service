@@ -4,7 +4,7 @@ import limecoding.asmrstreamingservice.dto.asmr.ASMRSaveRequestDTO;
 import limecoding.asmrstreamingservice.dto.asmr.AsmrDTO;
 import limecoding.asmrstreamingservice.entity.ASMR;
 import limecoding.asmrstreamingservice.repository.asmr.ASMRRepository;
-import limecoding.support.TestFixture;
+import limecoding.support.testFIxture.AsmrServiceTestFixture;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,8 +34,8 @@ class ASMRServiceUnitTest {
     @DisplayName(value = "ASMR 파일을 저장시 저장된 ASMR 객체의 DTO를 반환한다.")
     void save_asmr_file() {
         // Given
-        MockMultipartFile testMockFile = TestFixture.createMockMultipartFile("test");
-        ASMR asmr = TestFixture.createASMR(1L, testMockFile);
+        MockMultipartFile testMockFile = AsmrServiceTestFixture.createMockMultipartFile("test");
+        ASMR asmr = AsmrServiceTestFixture.createASMR(1L, testMockFile);
 
         ASMRSaveRequestDTO asmrSaveRequestDTO = new ASMRSaveRequestDTO();
         asmrSaveRequestDTO.setFile(testMockFile);

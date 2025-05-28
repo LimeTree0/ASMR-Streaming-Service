@@ -4,7 +4,6 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import limecoding.asmrstreamingservice.entity.ASMR;
 import limecoding.asmrstreamingservice.entity.FileEntity;
-import limecoding.asmrstreamingservice.exception.custom.FileDeleteFailedException;
 import limecoding.asmrstreamingservice.exception.custom.FileSaveFailedException;
 import limecoding.asmrstreamingservice.repository.FileRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -39,33 +39,45 @@ public class FileService {
     }
 
     /**
-     * Uploads an file to the server and saves its metadata to the database.
+     * Uploads a file to the server and saves its metadata to the database.
      * <p>
      * The uploaded file is stored in the local file system under a unique filename,
      * and its path and name are saved as an {@link ASMR} entity.
      *
      * @param file the {@link MultipartFile} to upload (must not be {@code null})
      * @return the Entity of the saved {@link ASMR} entity
-     * @throws NullPointerException if the input file is {@code null}
-     * @throws {@link FileSaveFailedException}          if an I/O error occurs while copying the file
+     * @throws NullPointerException    if the input file is {@code null}
+     * @throws FileSaveFailedException throw {@link FileSaveFailedException} if an I/O error occurs while copying the file
      */
     public FileEntity uploadFile(MultipartFile file) throws FileSaveFailedException {
 
-        // if file is null, throw Null PointException.
-        if (file == null) {
-            throw new NullPointerException("MultipartFile은 null일 될 수 없습니다.");
+        if (file == null || file.isEmpty()) {
+            throw new NullPointerException("MultipartFile은 null이거나 비어 있을 수 없습니다.");
         }
 
-        // make uuid and file path.
-        String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
-        Path filepath = uploadDir.resolve(filename);
+        String originalFilename = Objects.requireNonNull(file.getOriginalFilename());
+        String[] separateFileNameAndExtension = separateSafeFileNameAndExtension(originalFilename);
 
-        // trying to save file
+        String sanitizedFilename = UUID.randomUUID() + "_" + separateFileNameAndExtension[0] + "." + separateFileNameAndExtension[1];
+        Path filepath = uploadDir.resolve(sanitizedFilename).normalize();
+
+        log.info("filepath.toAbsolutePath() 경로 : {}", filepath.toAbsolutePath());
+        log.info("uploadDir.toAbsolutePath() 경로 : {}", uploadDir.toAbsolutePath());
+
+        // 경로 탈출 방지 체크
+        if (!filepath.toAbsolutePath().startsWith(uploadDir.toAbsolutePath())) {
+            throw new SecurityException("잘못된 파일 경로입니다: " + sanitizedFilename);
+        }
+
+        if (!file.getContentType().equals("mp3/mpeg")) {
+            throw new FileSaveFailedException("파일 형식이 맞지 않습니다.");
+        }
+
         try {
             Files.copy(file.getInputStream(), filepath);
 
             FileEntity fileEntity = FileEntity.builder()
-                    .fileName(filename)
+                    .fileName(sanitizedFilename)
                     .filePath(filepath.toString())
                     .build();
 
@@ -82,16 +94,25 @@ public class FileService {
         }
     }
 
-    /**
-     * find file entity by id from database.
-     * @param fileId file id used in database
-     * @return entity saved in data base {@link FileEntity}
-     */
     public FileEntity findFileById(Long fileId) {
         FileEntity fileEntity = fileRepository.findById(fileId).orElseThrow(
                 () -> new EntityNotFoundException("해당 파일을 찾을 수 없습니다."));
 
         log.info("getASMRFile: {}", fileEntity.getFileName());
         return fileEntity;
+    }
+
+    private String[] separateSafeFileNameAndExtension(String originalFileName) {
+        int indexOfExtension = originalFileName.lastIndexOf('.');
+
+        String fileName = originalFileName.substring(0, indexOfExtension);
+        fileName = fileName.replaceAll("[\\\\/]+", "");
+        fileName = fileName.replaceAll("\\.\\.+", ".");
+        fileName = fileName.replaceAll("[^\\w.-]", "_");
+
+        String extension = originalFileName.substring(indexOfExtension + 1);
+        extension = extension.replaceAll("[^a-zA-Z0-9]", ""); // 확장자 정제
+
+        return new String[]{fileName, extension};
     }
 }
